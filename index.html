@@ -1,222 +1,126 @@
-﻿<!DOCTYPE html>
-
+<!DOCTYPE html>
 <html>
-
 <head>
-    <title>Elapse</title>
-    <meta charset="UTF-8">
-    <style>
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            display: block;
-        }
-
-        canvas {
-            /* background-color: rgb(0, 0, 0); */
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+<title>Elapse</title>
 </head>
 
+<style>
+    DIV.movable {
+        position: absolute;
+        TOP: 0px;
+        LEFT: 0px;
+    }
 
-<body>
-    <canvas id='L2cva' style='position:absolute; left:0px; top:0px; background-color: rgb(0, 0, 0);'>
-    </canvas>
+@font-face { 
+    font-family: 'digital-clock-font'; 
+    src: url('digital-7.ttf'); 
 
-    <canvas id='cva' style='position:absolute; left:0px; top:0px;'>
-    </canvas>
+}
+
+    .text-block {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        background-color: black;
+        font-family: 'digital-clock-font';
+        color: white;
+        font-size: 54px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        opacity: 0.6;
+        filter: alpha(opacity=60); /* For IE8 and earlier */
+    }
+</style>
+
+<body onload="init()">
 
     <script>
-        (function () {
+        var burst_id;  //burst checker id
+        var clock_id;  //update time id
 
-            var myInterval;
+        var burst_effect_id; //burst effect id
+        var burst_status; //0 is not bursting, 1 is bursting
+        var burst_time;
 
-            var
-                // Obtain a reference to the canvas element using its id.
-                htmlCanvas = document.getElementById('cva'),
-                // Obtain a graphics context on the canvas element for drawing.
-                ctx = htmlCanvas.getContext('2d');
+        function init()
+        {
+            updateTime();
+            clock_id = setInterval(updateTime, 500);
+            burst_status = 0;
+            burst_effect_id = 0;
+            burst_id = setInterval(burstCheck, 3000);
+        }
 
-            var Lyr2Cva = document.getElementById('L2cva'),
-                ctx2 = Lyr2Cva.getContext('2d');
+        function updateTime() //get current time and display it
+        {
+            var today = new Date();
+            var h = today.getHours();
+            var m = today.getMinutes();
+            var s = today.getSeconds();
+            displayTime(h, m, s);
+        }
 
-            var growers = [{
-                "color": 'red',
-                "x": 50.0,
-                "y": 50.0,
-                "angle": randomAngle(0, 2 * Math.PI)
-            },
+        function displayTime(h, m, s) //display time to component
+        {
+            function checkTime(i)
             {
-                "color": 'blue',
-                "x": 400.0,
-                "y": 50.0,
-                "angle": randomAngle(0, 2 * Math.PI)
-            },
+                if (i < 10) { i = "0" + i };  // add zero in front of numbers < 10
+                return i;
+            }
+            h = checkTime(h);
+            m = checkTime(m);
+            s = checkTime(s);
+            document.getElementById('time').innerText = h + ":" + m + ":" + s;
+        }
+
+
+        function burstCheck()
+        {
+            if (burst_status == 0)
             {
-                "color": 'yellow',
-                "x": 300.0,
-                "y": 50.0,
-                "angle": randomAngle(0, 2 * Math.PI)
+                clearInterval(clock_id);
+                var today = new Date();
+                burst_time = today.getHours() * 3600 + today.getMinutes() * 60 + today.getSeconds();
+                document.getElementById('time').style.color = 'red';
+                burst_effect_id = setInterval(burstTime, 5);
+                burst_status = 1;
             }
-            ];
-
-            armlength = 15; // armlength of the star's arm
-
-            // Start listening to resize events and draw canvas.
-            initialize();
-
-            function initialize() {
-                // Register an event listener to call the resizeCanvas() function 
-                // each time the window is resized.
-                window.addEventListener('resize', resizeCanvas, false);
-                // Draw canvas border for the first time.
-                resizeCanvas();
-            }
-
-            function gaussianRand() {
-                var rand = 0;
-
-                for (var i = 0; i < 6; i += 1) {
-                    rand += Math.random();
+            else
+            {
+                if (burst_effect_id != 0)
+                {
+                    clearInterval(burst_effect_id);
                 }
-
-                return rand / 6;
+                document.getElementById('time').style.color = 'white';
+                updateTime();
+                clock_id = setInterval(updateTime, 500);
+                burst_status = 0;
             }
+        }
 
-            function gaussianRandom(start, end) {
-                return Math.floor(start + gaussianRand() * (end - start + 1));
+        function burstTime()
+        {
+            burst_time = burst_time + 150;
+            if (burst_time >= 86400)
+            {
+                burst_time = 0;
             }
-
-            function randomAngle(min, max) {
-                return Math.random() * (max - min) + min;
-            }
-
-            function toVectorCoords(distance, angle, ox, oy) {
-                var x = ox + Math.sin(angle) * distance;
-                var y = oy + Math.cos(angle) * distance;
-                return { "x": x, "y": y };
-            }
-
-            function onInterval() {
-                var width = htmlCanvas.width;
-                var height = htmlCanvas.height;
-
-                for (var i = 0; i < growers.length; i++) {
-                    var grower = growers[i];
-
-                    ctx.strokeStyle = grower.color;
-                    ctx.beginPath();
-
-                    ctx.moveTo(grower.x, grower.y);
-
-                    var cp1d = gaussianRandom(20, 100);
-
-                    var cp1 = toVectorCoords(cp1d, grower.angle, grower.x, grower.y);
-
-                    var nd = gaussianRandom(20, 150);
-                    var nAngle = randomAngle(0, 2 * Math.PI);
-                    var nCoords = toVectorCoords(nd, nAngle, grower.x, grower.y);
-                    while (nCoords.x <= 0 || nCoords.y <= 0 || nCoords.x >= width || nCoords.y >= height) {
-                        var nAngle = randomAngle(0, Math.PI);
-                        var nCoords = toVectorCoords(nd, nAngle, grower.x, grower.y);
-                    }
-
-                    ctx.quadraticCurveTo(cp1.x, cp1.y, nCoords.x, nCoords.y);
-
-                    ctx.stroke();
-
-                    grower.x = nCoords.x;
-                    grower.y = nCoords.y;
-                    grower.angle = 0.5 * Math.PI + -Math.atan2(nCoords.y - cp1.y, nCoords.x - cp1.x);
-
-                }
-            }
-
-            // mouse click
-            function getMousePos(canvas, evt) {
-                var rect = canvas.getBoundingClientRect();
-                return {
-                    x: evt.clientX - rect.left,
-                    y: evt.clientY - rect.top
-                };
-            }
-
-            htmlCanvas.addEventListener('mousedown', function (evt) {
-                var mousePos = getMousePos(htmlCanvas, evt);
-
-                ctx2.clearRect(0, 0, Lyr2Cva.width, Lyr2Cva.height);
-                ctx2.font = "italic 24pt Calibri";
-                ctx2.strokeStyle = '#C0C0C0';
-                ctx2.strokeText("IN TIME", mousePos.x + 40, mousePos.y);
-
-                draw5Star(mousePos.x, mousePos.y, 5, 12, 6);
-            }, false);
-
-            //5 star
-            function draw5Star(cx, cy, spikes, outerRadius, innerRadius) {
-                var rot = Math.PI / 2 * 3;
-                var x = cx;
-                var y = cy;
-                var step = Math.PI / spikes;
-
-                ctx.strokeSyle = "#000";
-                ctx.beginPath();
-                ctx.moveTo(cx, cy - outerRadius)
-                for (i = 0; i < spikes; i++) {
-                    x = cx + Math.cos(rot) * outerRadius;
-                    y = cy + Math.sin(rot) * outerRadius;
-                    ctx.lineTo(x, y)
-                    rot += step
-
-                    x = cx + Math.cos(rot) * innerRadius;
-                    y = cy + Math.sin(rot) * innerRadius;
-                    ctx.lineTo(x, y)
-                    rot += step
-                }
-                ctx.lineTo(cx, cy - outerRadius)
-                ctx.closePath();
-                //ctx.lineWidth = 5;
-                ctx.strokeStyle = '#C0C0C0';
-                ctx.stroke();
-            }
-
-            // Display custom canvas. 
-            function redraw() {
-                if (myInterval !== "" && myInterval != null) {
-                    clearInterval(myInterval);
-                }
-                // draw lines
-                ctx2.clearRect(0, 0, Lyr2Cva.width, Lyr2Cva.height);
-                ctx.clearRect(0, 0, htmlCanvas.width, htmlCanvas.height);
-                myInterval = window.setInterval(onInterval, 500);
-            }
-
-            // Runs each time the DOM window resize event fires.
-            // Resets the canvas dimensions to match window,
-            // then draws the new borders accordingly.
-            function resizeCanvas() {
-                Lyr2Cva.width = window.innerWidth;
-                Lyr2Cva.height = window.innerHeight;
-
-                htmlCanvas.width = window.innerWidth;
-                htmlCanvas.height = window.innerHeight;
-                redraw();
-            }
-        })();
-
+            var h = Math.floor(burst_time / 3600);
+            var m = Math.floor((burst_time - 3600 * h) / 60);
+            var s = burst_time - 3600 * h - 60 * m;
+            displayTime(h, m, s);
+        }
     </script>
 
-</body>
 
+    <div id="background" class="movable">
+        <img src="pink-ish.png" alt="Oops, image not found">
+        <div id="time" class="text-block">
+            15:00:00
+        </div>
+    </div>
+
+</body>
 </html>
