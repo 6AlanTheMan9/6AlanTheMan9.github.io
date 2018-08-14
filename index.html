@@ -1,126 +1,55 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Elapse</title>
-</head>
 
+<head>
+<title>Welcome</title>
+</head>
 <style>
     DIV.movable {
         position: absolute;
-        TOP: 0px;
+        TOP: 100px;
         LEFT: 0px;
-    }
-
-@font-face { 
-    font-family: 'digital-clock-font'; 
-    src: url('digital-7.ttf'); 
-
-}
-
-    .text-block {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        background-color: black;
-        font-family: 'digital-clock-font';
-        color: white;
-        font-size: 54px;
-        padding-top: 20px;
-        padding-bottom: 20px;
-        padding-left: 20px;
-        padding-right: 20px;
-        opacity: 0.6;
-        filter: alpha(opacity=60); /* For IE8 and earlier */
     }
 </style>
 
 <body onload="init()">
 
-    <script>
-        var burst_id;  //burst checker id
-        var clock_id;  //update time id
+<script>
 
-        var burst_effect_id; //burst effect id
-        var burst_status; //0 is not bursting, 1 is bursting
-        var burst_time;
-
-        function init()
-        {
-            updateTime();
-            clock_id = setInterval(updateTime, 500);
-            burst_status = 0;
-            burst_effect_id = 0;
-            burst_id = setInterval(burstCheck, 3000);
+    function init()
+    {
+        var w = window.innerWidth;
+        if (w > 780) {
+            var r = Math.floor((w - 780)/4);
+            document.getElementById('blue-btn').style.left = 1.5*r + 'px';
+            document.getElementById('pink-btn').style.left = 2.5*r + 390 + 'px';
         }
-
-        function updateTime() //get current time and display it
+        else
         {
-            var today = new Date();
-            var h = today.getHours();
-            var m = today.getMinutes();
-            var s = today.getSeconds();
-            displayTime(h, m, s);
+            document.getElementById('blue-btn').style.left = "0px";
+            document.getElementById('pink-btn').style.left = "390px";
         }
+        
 
-        function displayTime(h, m, s) //display time to component
-        {
-            function checkTime(i)
-            {
-                if (i < 10) { i = "0" + i };  // add zero in front of numbers < 10
-                return i;
-            }
-            h = checkTime(h);
-            m = checkTime(m);
-            s = checkTime(s);
-            document.getElementById('time').innerText = h + ":" + m + ":" + s;
-        }
+    }
 
+</script>
 
-        function burstCheck()
-        {
-            if (burst_status == 0)
-            {
-                clearInterval(clock_id);
-                var today = new Date();
-                burst_time = today.getHours() * 3600 + today.getMinutes() * 60 + today.getSeconds();
-                document.getElementById('time').style.color = 'red';
-                burst_effect_id = setInterval(burstTime, 5);
-                burst_status = 1;
-            }
-            else
-            {
-                if (burst_effect_id != 0)
-                {
-                    clearInterval(burst_effect_id);
-                }
-                document.getElementById('time').style.color = 'white';
-                updateTime();
-                clock_id = setInterval(updateTime, 500);
-                burst_status = 0;
-            }
-        }
+<body>
 
-        function burstTime()
-        {
-            burst_time = burst_time + 150;
-            if (burst_time >= 86400)
-            {
-                burst_time = 0;
-            }
-            var h = Math.floor(burst_time / 3600);
-            var m = Math.floor((burst_time - 3600 * h) / 60);
-            var s = burst_time - 3600 * h - 60 * m;
-            displayTime(h, m, s);
-        }
-    </script>
-
-
-    <div id="background" class="movable">
-        <img src="pink-ish.png" alt="Oops, image not found">
-        <div id="time" class="text-block">
-            15:00:00
-        </div>
+    <h1 align="center">Welcome! Please select a style:</h1>
+    <div id="blue-btn" class="movable">
+        <a href="blue-ish.html">
+            <img src="blue-btn.png" alt="Oops, image not found">
+        </a>
     </div>
+
+    <div id="pink-btn" class="movable">
+        <a href="pink-ish.html">
+            <img src="pink-btn.png" alt="Oops, image not found">
+        </a>
+    </div>
+
 
 </body>
 </html>
