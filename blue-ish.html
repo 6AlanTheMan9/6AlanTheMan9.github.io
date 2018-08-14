@@ -19,18 +19,18 @@
 
     .text-block {
         position: absolute;
-        bottom: 20px;
-        right: 20px;
-        background-color: black;
+        left: 270px;
+        top: 300px;
+        /*background-color: black;*/
         font-family: 'digital-clock-font';
-        color: white;
-        font-size: 54px;
+        color: #4290CE;
+        font-size: 150px;
         padding-top: 20px;
         padding-bottom: 20px;
         padding-left: 20px;
         padding-right: 20px;
-        opacity: 0.6;
-        filter: alpha(opacity=60); /* For IE8 and earlier */
+        opacity: 1.0;
+        filter: alpha(opacity=100); /* For IE8 and earlier */
     }
 </style>
 
@@ -83,7 +83,7 @@
                 clearInterval(clock_id);
                 var today = new Date();
                 burst_time = today.getHours() * 3600 + today.getMinutes() * 60 + today.getSeconds();
-                document.getElementById('time').style.color = 'red';
+                document.getElementById('time').style.color = '#4169E1';
                 burst_effect_id = setInterval(burstTime, 5);
                 burst_status = 1;
             }
@@ -93,7 +93,7 @@
                 {
                     clearInterval(burst_effect_id);
                 }
-                document.getElementById('time').style.color = 'white';
+                document.getElementById('time').style.color = '#4290CE';
                 updateTime();
                 clock_id = setInterval(updateTime, 500);
                 burst_status = 0;
