@@ -9,6 +9,7 @@
         position: absolute;
         TOP: 100px;
         LEFT: 0px;
+        display: none
     }
 </style>
 
@@ -29,15 +30,15 @@
             document.getElementById('blue-btn').style.left = "0px";
             document.getElementById('pink-btn').style.left = "390px";
         }
-        
-
+        document.getElementById('blue-btn').style.display = "block";
+        document.getElementById('pink-btn').style.display = "block";
     }
 
 </script>
 
 <body>
 
-    <h1 align="center">Welcome! Please select a style:</h1>
+    <h1 align="center">MAKE A CHOICE</h1>
     <div id="blue-btn" class="movable">
         <a href="blue-ish.html">
             <img src="blue-btn.png" alt="Oops, image not found">
